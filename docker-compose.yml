@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Servicio para la aplicación Laravel
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laravel-app
+    container_name: laravel-app
+    ports:
+      - "8000:80" # Mapea el puerto 8000 de tu host al puerto 80 del contenedor
+    volumes:
+      - .:/var/www/html # Monta el directorio actual (tu app Laravel) en el contenedor
+    depends_on:
+      - mysql
+    environment:
+      # Asegúrate de que estos valores coincidan con tu .env de Laravel
+      DB_CONNECTION: mysql
+      DB_HOST: mysql # El nombre del servicio de MySQL en Docker Compose
+      DB_PORT: 3306
+      DB_DATABASE: laravel_db # El nombre de la base de datos
+      DB_USERNAME: laravel_user # El usuario de la base de datos
+      DB_PASSWORD: laravel_password # La contraseña del usuario
+      # Otras variables de entorno de Laravel si las necesitas
+      APP_ENV: local
+      APP_DEBUG: "true"
+
+  # Servicio para la base de datos MySQL
+  mysql:
+    image: mysql:8.0 # Puedes usar otra versión si lo necesitas
+    container_name: mysql_db
+    ports:
+      - "3306:3306" # Opcional: para acceder a MySQL desde tu host (ej. con MySQL Workbench)
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password # Contraseña para el usuario root de MySQL
+      MYSQL_DATABASE: laravel_db # Nombre de la base de datos para tu app Laravel
+      MYSQL_USER: laravel_user # Usuario para tu app Laravel
+      MYSQL_PASSWORD: laravel_password # Contraseña para tu app Laravel
+    volumes:
+      - db_data:/var/lib/mysql # Persistencia de datos de la base de datos
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Servicio para phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_panel
+    ports:
+      - "8080:80" # Mapea el puerto 8080 de tu host al puerto 80 de phpMyAdmin
+    environment:
+      PMA_HOST: mysql # El nombre del servicio de MySQL en Docker Compose
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password # La contraseña del usuario root de MySQL
+    depends_on:
+      - mysql
+
+volumes:
+  db_data: # Volumen para persistir los datos de MySQL
+  
+  
+  
+  
