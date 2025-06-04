@@ -25,6 +25,8 @@ services:
       # Otras variables de entorno de Laravel si las necesitas
       APP_ENV: local
       APP_DEBUG: "true"
+    networks: # Asigna el servicio a la red personalizada
+      - dokploy_app_network      
 
   # Servicio para la base de datos MySQL
   mysql:
@@ -43,6 +45,9 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
+    networks: # Asigna el servicio a la red personalizada
+      - dokploy_app_network
+
 
   # Servicio para phpMyAdmin
   phpmyadmin:
@@ -56,10 +61,14 @@ services:
       MYSQL_ROOT_PASSWORD: root_password # La contraseña del usuario root de MySQL
     depends_on:
       - mysql
+    networks: # Asigna el servicio a la red personalizada
+      - dokploy_app_network      
 
 volumes:
   db_data: # Volumen para persistir los datos de MySQL
   
-  
+networks:
+  dokploy_app_network: # Define la red personalizada
+    driver: bridge # O puedes usar 'overlay' para entornos distribuidos si Dokploy lo soporta  
   
   
